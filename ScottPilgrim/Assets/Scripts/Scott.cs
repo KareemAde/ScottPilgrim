@@ -117,6 +117,10 @@ public class Scott : MonoBehaviour {
         {
             if (c.transform.parent.parent == transform)
                 continue;
+            else
+            {
+                anim.SetBool("LightHit", true);
+            }
             Debug.Log(c.name);
         }
     }
