@@ -3,22 +3,27 @@ using System.Collections;
 
 public class Scott : MonoBehaviour {
 
-    [Range(1,20)]
-    public float speed;
-    [Range(1, 20)]
-    public float jumpVelocity;
-
+    //Character Components
     Animator anim;
     Rigidbody scott;
 
-    float lastTime = -1.0f;
-
+    //Variables for movement
+    [Range(1,20)]
+    public float speed;
     KeyCode walkRight = KeyCode.RightArrow;
+
+    //Variables for jumping
+    [Range(1, 20)]
+    public float jumpVelocity;
+    public bool run = false;
+    public float runSpeed;
+    float lastTime = -1.0f;
+    bool grounded = true;
     KeyCode jump = KeyCode.UpArrow;
 
-    bool grounded = true;
-
+    //Character Colliders
     public Collider[] attackHitBoxes;
+
 
     // Use this for initialization
     void Awake () {
@@ -49,14 +54,22 @@ public class Scott : MonoBehaviour {
         float moveHorizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
 
+        if (run)
+        {
+            scott.AddForce(movement * speed * runSpeed);
+        }
+        //If statement determines movement speed
         if (Input.GetKeyDown(walkRight))
         {
+            //If the arrow key is pressed twice, Run
             if (Time.time - lastTime < 0.2f)
             {
                 lastTime = Time.time;
                 anim.SetBool("Run", true);
-                scott.AddForce(movement * speed * 2);
+                run = true;
+                //scott.AddForce(movement * speed * 2);
             }
+            //If the arrow key is pressed once, Walk
             else
             {
                 lastTime = Time.time;
@@ -66,6 +79,7 @@ public class Scott : MonoBehaviour {
         }
         if (Input.GetKeyUp(walkRight))
         {
+            run = false;
             anim.SetBool("Run", false);
             anim.SetBool("Walk", false);
         }
