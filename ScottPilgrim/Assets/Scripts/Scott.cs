@@ -18,12 +18,14 @@ public class Scott : MonoBehaviour {
     public bool run = false;
     public float runSpeed;
     float lastTime = -1.0f;
-    bool grounded = true;
+    public bool grounded = true;
     KeyCode jump = KeyCode.UpArrow;
 
     //Character Colliders
     public Collider[] attackHitBoxes;
 
+    //Other Colliders and Elements
+    public Collider floor;
 
     // Use this for initialization
     void Awake () {
@@ -33,7 +35,6 @@ public class Scott : MonoBehaviour {
 	void FixedUpdate()
     {
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
-        //float jump = Input.GetAxisRaw("Vertical");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
         scott.AddForce(movement * speed);
 
@@ -43,7 +44,7 @@ public class Scott : MonoBehaviour {
 
         Attack();
         Movement();
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.UpArrow) && grounded)
         {
             GetComponent<Rigidbody>().velocity = Vector3.up * jumpVelocity;
         }
@@ -54,12 +55,12 @@ public class Scott : MonoBehaviour {
         float moveHorizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
 
-        if (run)
+        if (run && grounded)
         {
             scott.AddForce(movement * speed * runSpeed);
         }
         //If statement determines movement speed
-        if (Input.GetKeyDown(walkRight))
+        if (Input.GetKeyDown(walkRight) && grounded)
         {
             //If the arrow key is pressed twice, Run
             if (Time.time - lastTime < 0.2f)
@@ -84,9 +85,8 @@ public class Scott : MonoBehaviour {
             anim.SetBool("Walk", false);
         }
 
-        if (Input.GetKeyDown(jump))
+        if (Input.GetKeyDown(jump) && grounded) 
         {
-            grounded = false;
             anim.SetTrigger("Jump");
         }
 
@@ -109,6 +109,20 @@ public class Scott : MonoBehaviour {
         anim.SetBool("Heavy", heavy);
 
 
+    }
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.collider.CompareTag("Floor"))
+        {
+            grounded = true;
+        }
+    }
+    private void OnCollisionExit(Collision other)
+    {
+        if (other.collider.CompareTag("Floor"))
+        {
+            grounded = false;
+        }
     }
 
     private void LaunchAttack(Collider col) {
