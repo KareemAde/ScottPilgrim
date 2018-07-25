@@ -11,12 +11,12 @@ public class Scott : MonoBehaviour {
     [Range(1,20)]
     public float speed;
     KeyCode walkRight = KeyCode.RightArrow;
+    public bool run = false;
+    public float runSpeed;
 
     //Variables for jumping
     [Range(1, 20)]
     public float jumpVelocity;
-    public bool run = false;
-    public float runSpeed;
     float lastTime = -1.0f;
     public bool grounded = true;
     KeyCode jump = KeyCode.UpArrow;
@@ -32,6 +32,7 @@ public class Scott : MonoBehaviour {
         anim = GetComponent<Animator>();
         scott = GetComponent<Rigidbody>();
 	}
+    // Update is called once per physics update
 	void FixedUpdate()
     {
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
@@ -50,6 +51,7 @@ public class Scott : MonoBehaviour {
         }
     }
 
+    //Function handles Walking, Running, and Jumping
     void Movement()
     {
         float moveHorizontal = Input.GetAxis("Horizontal");
@@ -58,6 +60,7 @@ public class Scott : MonoBehaviour {
         if (run && grounded)
         {
             scott.AddForce(movement * speed * runSpeed);
+            anim.SetBool("Run", true);
         }
         //If statement determines movement speed
         if (Input.GetKeyDown(walkRight) && grounded)
@@ -66,10 +69,9 @@ public class Scott : MonoBehaviour {
             if (Time.time - lastTime < 0.2f)
             {
                 lastTime = Time.time;
-                anim.SetBool("Run", true);
                 run = true;
-                //scott.AddForce(movement * speed * 2);
             }
+
             //If the arrow key is pressed once, Walk
             else
             {
@@ -91,25 +93,15 @@ public class Scott : MonoBehaviour {
         }
 
     }
+
+    //Function handles Attack Animations
     void Attack()
     {
         bool punch = Input.GetKey(KeyCode.Z);
-        bool kick = Input.GetKey(KeyCode.X);
-        bool heavy = Input.GetKey(KeyCode.C);
-
-        if (punch)
-            LaunchAttack(attackHitBoxes[0]);
-        if (kick)
-            LaunchAttack(attackHitBoxes[1]);
-        if (heavy)
-            LaunchAttack(attackHitBoxes[2]);
 
         anim.SetBool("Punch", punch);
-        anim.SetBool("Kick", kick);
-        anim.SetBool("Heavy", heavy);
-
-
     }
+
     void OnCollisionEnter(Collision other)
     {
         if (other.collider.CompareTag("Floor"))
@@ -122,20 +114,6 @@ public class Scott : MonoBehaviour {
         if (other.collider.CompareTag("Floor"))
         {
             grounded = false;
-        }
-    }
-
-    private void LaunchAttack(Collider col) {
-        Collider[] cols = Physics.OverlapBox(col.bounds.center, col.bounds.extents, col.transform.rotation, LayerMask.GetMask("Hitbox"));
-        foreach (Collider c in cols)
-        {
-            if (c.transform.parent.parent == transform)
-                continue;
-            else
-            {
-                anim.SetBool("LightHit", true);
-            }
-            Debug.Log(c.name);
         }
     }
 
