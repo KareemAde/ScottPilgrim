@@ -10,15 +10,17 @@ public class Scott : MonoBehaviour {
     //Variables for movement
     [Range(1,20)]
     public float speed;
+    public bool run = false;
+    public float runSpeed;
+    float lastTime = -1.0f;
     KeyCode walkRight = KeyCode.RightArrow;
 
     //Variables for jumping
     [Range(1, 20)]
     public float jumpVelocity;
-    public bool run = false;
-    public float runSpeed;
-    float lastTime = -1.0f;
     public bool grounded = true;
+
+    // TODO: Possible change Jump to "A"
     KeyCode jump = KeyCode.UpArrow;
 
     //Character Colliders
@@ -52,6 +54,7 @@ public class Scott : MonoBehaviour {
 
     void Movement()
     {
+        //TODO: Seperate Jump and Movement into different functions
         float moveHorizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
 
@@ -93,9 +96,12 @@ public class Scott : MonoBehaviour {
     }
     void Attack()
     {
+        // TODO: Make all of these attacks one button
         bool punch = Input.GetKey(KeyCode.Z);
         bool kick = Input.GetKey(KeyCode.X);
         bool heavy = Input.GetKey(KeyCode.C);
+
+        // TODO: "X" button will be reserved for special attacks
 
         if (punch)
             LaunchAttack(attackHitBoxes[0]);
@@ -108,7 +114,10 @@ public class Scott : MonoBehaviour {
         anim.SetBool("Kick", kick);
         anim.SetBool("Heavy", heavy);
 
-
+    }
+    void AnimationManager(string animation)
+    {
+        // TODO: Make serparate function for Animations and Physics calculations (Look into Finite State Machines)
     }
     void OnCollisionEnter(Collision other)
     {
