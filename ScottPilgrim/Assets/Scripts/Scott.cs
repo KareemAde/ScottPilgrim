@@ -46,7 +46,7 @@ public class Scott : MonoBehaviour {
 
         Attack();
         Movement();
-        if (Input.GetKeyDown(KeyCode.UpArrow) && grounded)
+        if (Input.GetKeyDown(jump) && grounded)
         {
             GetComponent<Rigidbody>().velocity = Vector3.up * jumpVelocity;
         }
