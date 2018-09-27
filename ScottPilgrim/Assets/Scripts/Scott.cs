@@ -20,6 +20,12 @@ public class Scott : MonoBehaviour {
     public float jumpVelocity;
     public bool grounded = true;
 
+    //Variables for Attacking
+    KeyCode neutralAttack = KeyCode.Z;
+    float lastAttack = -1.0f;
+    float attackTime = 0.5f;
+    int numOfClicks = 0;
+
     // TODO: Possible change Jump to "A"
     KeyCode jump = KeyCode.UpArrow;
 
@@ -43,13 +49,22 @@ public class Scott : MonoBehaviour {
     }
     // Update is called once per frame
     void Update () {
-
         Attack();
         Movement();
+        Jump();
+    }
+
+    void Jump()
+    {
+        if (Input.GetKeyDown(jump) && grounded)
+        {
+            anim.SetTrigger("Jump");
+        }
         if (Input.GetKeyDown(jump) && grounded)
         {
             GetComponent<Rigidbody>().velocity = Vector3.up * jumpVelocity;
         }
+
     }
 
     void Movement()
@@ -71,7 +86,6 @@ public class Scott : MonoBehaviour {
                 lastTime = Time.time;
                 anim.SetBool("Run", true);
                 run = true;
-                //scott.AddForce(movement * speed * 2);
             }
             //If the arrow key is pressed once, Walk
             else
@@ -87,32 +101,76 @@ public class Scott : MonoBehaviour {
             anim.SetBool("Run", false);
             anim.SetBool("Walk", false);
         }
-
-        if (Input.GetKeyDown(jump) && grounded) 
-        {
-            anim.SetTrigger("Jump");
-        }
-
     }
     void Attack()
     {
-        // TODO: Make all of these attacks one button
-        bool punch = Input.GetKey(KeyCode.Z);
-        bool kick = Input.GetKey(KeyCode.X);
-        bool heavy = Input.GetKey(KeyCode.C);
+        //bool punch = Input.GetKey(KeyCode.Z);
+        //bool kick = Input.GetKey(KeyCode.X);
+        //bool heavy = Input.GetKey(KeyCode.C);
 
         // TODO: "X" button will be reserved for special attacks
-
-        if (punch)
+        // HitBoxes
+        /*if (punch)
             LaunchAttack(attackHitBoxes[0]);
         if (kick)
             LaunchAttack(attackHitBoxes[1]);
         if (heavy)
-            LaunchAttack(attackHitBoxes[2]);
+            LaunchAttack(attackHitBoxes[2]);*/
 
-        anim.SetBool("Punch", punch);
-        anim.SetBool("Kick", kick);
-        anim.SetBool("Heavy", heavy);
+        bool firstAttack = false, secondAttack = false, thirdAttack = false;
+
+        // Second Attack is triggered
+        if (Input.GetKeyDown(neutralAttack) && numOfClicks == 1) 
+        {
+
+            //secondAttack = true;
+            //Debug.Log("Test");
+
+            //firstAttack = true;
+            //If the Z key is pressed twice, secondAttack
+            if (Time.time - lastAttack < attackTime) 
+            {
+                lastAttack = Time.time;
+                secondAttack = true;
+                numOfClicks = 2;
+            }
+            else
+            {
+                lastAttack = Time.time;
+                firstAttack = true;
+            }
+
+        }
+
+        // Third Attack is triggered
+        if (Input.GetKeyDown(neutralAttack) && numOfClicks == 2) 
+        {
+            if (Time.time - lastAttack < attackTime)
+            {
+                lastAttack = Time.time;
+                thirdAttack = true;
+                numOfClicks = 3;
+            }
+            else
+            {
+                lastAttack = Time.time;
+                firstAttack = true;
+            }
+        }
+
+        // First Attack is triggered
+        if (Input.GetKeyUp(neutralAttack)) 
+        {
+            numOfClicks = 1;
+            firstAttack = false;
+            secondAttack = false;
+            thirdAttack = false;
+        }
+
+        // Attack Animations
+        anim.SetBool("Punch", firstAttack);
+        anim.SetBool("Kick", secondAttack);
+        anim.SetBool("Heavy", thirdAttack);
 
     }
     void AnimationManager(string animation)
