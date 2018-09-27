@@ -6,6 +6,7 @@ public class Scott : MonoBehaviour {
     //Character Components
     Animator anim;
     Rigidbody scott;
+    bool isKeyDisabled = false;
 
     //Variables for movement
     [Range(1,20)]
@@ -25,8 +26,8 @@ public class Scott : MonoBehaviour {
     float lastAttack = -1.0f;
     float attackTime = 0.5f;
     int numOfClicks = 0;
+    bool attacking = false;
 
-    // TODO: Possible change Jump to "A"
     KeyCode jump = KeyCode.UpArrow;
 
     //Character Colliders
@@ -42,34 +43,36 @@ public class Scott : MonoBehaviour {
 	}
 	void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxisRaw("Horizontal");
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
-        scott.AddForce(movement * speed);
+        if (!isKeyDisabled)
+        {
+            float moveHorizontal = Input.GetAxisRaw("Horizontal");
+            Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
+            scott.AddForce(movement * speed);
+        }
 
     }
     // Update is called once per frame
     void Update () {
-        Attack();
-        Movement();
-        Jump();
+        if (!isKeyDisabled)
+        {
+            Attack();
+            Movement();
+            Jump();
+        }
+        Block();
     }
 
     void Jump()
     {
-        if (Input.GetKeyDown(jump) && grounded)
+        if (Input.GetKeyDown(jump) && grounded || Input.GetKeyDown(KeyCode.A) && grounded) 
         {
             anim.SetTrigger("Jump");
-        }
-        if (Input.GetKeyDown(jump) && grounded)
-        {
             GetComponent<Rigidbody>().velocity = Vector3.up * jumpVelocity;
         }
 
     }
-
     void Movement()
     {
-        //TODO: Seperate Jump and Movement into different functions
         float moveHorizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(moveHorizontal, 0.0f, 0.0f);
 
@@ -133,11 +136,13 @@ public class Scott : MonoBehaviour {
                 lastAttack = Time.time;
                 secondAttack = true;
                 numOfClicks = 2;
+                attacking = true;
             }
             else
             {
                 lastAttack = Time.time;
-                firstAttack = true;
+                numOfClicks = 0;
+                attacking = false;
             }
 
         }
@@ -149,19 +154,35 @@ public class Scott : MonoBehaviour {
             {
                 lastAttack = Time.time;
                 thirdAttack = true;
-                numOfClicks = 3;
+                numOfClicks = 0;
+                attacking = true;
             }
             else
             {
                 lastAttack = Time.time;
-                firstAttack = true;
+                numOfClicks = 0;
+                attacking = false;
             }
         }
 
         // First Attack is triggered
+        if(Input.GetKeyDown(neutralAttack) && numOfClicks == 0)
+        {
+            lastAttack = Time.time;
+            firstAttack = true;
+            numOfClicks = 1;
+            attacking = true;
+        }
+
+        if (Time.time - lastAttack > attackTime)
+        {
+            lastAttack = Time.time;
+            attacking = false;
+        }
+
+        // Attack Button is released
         if (Input.GetKeyUp(neutralAttack)) 
         {
-            numOfClicks = 1;
             firstAttack = false;
             secondAttack = false;
             thirdAttack = false;
@@ -177,6 +198,7 @@ public class Scott : MonoBehaviour {
     {
         // TODO: Make serparate function for Animations and Physics calculations (Look into Finite State Machines)
     }
+
     void OnCollisionEnter(Collision other)
     {
         if (other.collider.CompareTag("Floor"))
@@ -203,6 +225,24 @@ public class Scott : MonoBehaviour {
                 anim.SetBool("LightHit", true);
             }
             Debug.Log(c.name);
+        }
+    }
+
+    // Disable other attacks on block
+    void Block()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && grounded && !run && !attacking) 
+        {
+            anim.SetBool("Block", true);
+            anim.speed = 0.0f;
+            isKeyDisabled = true;
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            anim.SetBool("Block", false);
+            anim.speed = 1f;
+            isKeyDisabled = false;
         }
     }
 
