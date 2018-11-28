@@ -20,6 +20,8 @@ public class Scott : MonoBehaviour {
     [Range(1, 20)]
     public float jumpVelocity;
     public bool grounded = true;
+    KeyCode jump = KeyCode.UpArrow;
+    KeyCode jump2 = KeyCode.A;
 
     //Variables for Attacking
     KeyCode neutralAttack = KeyCode.Z;
@@ -28,7 +30,6 @@ public class Scott : MonoBehaviour {
     int numOfClicks = 0;
     bool attacking = false;
 
-    KeyCode jump = KeyCode.UpArrow;
 
     //Character Colliders
     public Collider[] attackHitBoxes;
@@ -64,7 +65,7 @@ public class Scott : MonoBehaviour {
 
     void Jump()
     {
-        if (Input.GetKeyDown(jump) && grounded || Input.GetKeyDown(KeyCode.A) && grounded) 
+        if (Input.GetKeyDown(jump) && grounded || Input.GetKeyDown(jump2) && grounded) 
         {
             anim.SetTrigger("Jump");
             GetComponent<Rigidbody>().velocity = Vector3.up * jumpVelocity;
